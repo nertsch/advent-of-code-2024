@@ -18,30 +18,33 @@ pub fn part_a() -> u64 {
 pub fn part_b() -> u64 {
     let mut disk_contents = read_disk_contents();
 
-    let mut tail = disk_contents.len()-1;
+    let mut file_start_search_position = disk_contents.len();
     'main_loop: loop {
-        while disk_contents[tail].is_none() {tail-=1;}
-        let file_end = tail;
-        let file_id = disk_contents[tail].unwrap();
-        while disk_contents[tail] == Some(file_id) {
-            if tail == 0 {break 'main_loop;}
-            tail-=1;
-        }
-        let file_range = tail+1..file_end+1;
+        let Some(mut file_end) = disk_contents[0..file_start_search_position].iter().rposition(|&i| i.is_some()).and_then(|i| Some(i+1)) else {break;};
 
-        let mut free_block_start = 0usize;
+        let file_id = disk_contents[file_end-1].unwrap();
+        let Some(mut file_start) = disk_contents[0..file_end].iter().rposition(|&i| i != Some(file_id)).and_then(|i| Some(i+1)) else {break;};
+
+        let file_range = file_start..file_end;
+
+        let mut block_search_start_position = 0usize;
         loop {
-            while disk_contents[free_block_start].is_some() {free_block_start+=1;}
-            if(free_block_start > file_range.start) {break}
-            let mut free_block_end = free_block_start;
-            while disk_contents[free_block_end].is_none() {free_block_end+=1;}
-            if free_block_end-free_block_start >= file_range.len() {
+            let free_block_start;
+            match disk_contents[block_search_start_position..].iter().position(|&i| i.is_none()){
+                Some(i) if block_search_start_position + i > file_range.start => break,
+                Some(i) => free_block_start = block_search_start_position + i,
+                None => break,
+            }
+            let Some(free_block_length) = disk_contents[free_block_start..].iter().position(|i| i.is_some()) else { break; };
+
+            if free_block_length >= file_range.len() {
                 let (left, right) = disk_contents.split_at_mut(file_range.start);
                 left[free_block_start..free_block_start+file_range.len()].swap_with_slice(&mut right[0..file_range.len()]);
                 break;
             }
-            free_block_start = free_block_end;
+            block_search_start_position = free_block_start + free_block_length;
         }
+        file_start_search_position = file_start;
     }
 
     disk_contents.iter().enumerate().map(|(i,id)| (i as u64)*id.unwrap_or(0)).sum()
