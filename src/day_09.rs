@@ -19,7 +19,7 @@ pub fn part_b() -> u64 {
     let mut disk_contents = read_disk_contents();
 
     let mut file_start_search_position = disk_contents.len();
-    'main_loop: loop {
+    loop {
         let Some(mut file_end) = disk_contents[0..file_start_search_position].iter().rposition(|&i| i.is_some()).and_then(|i| Some(i+1)) else {break;};
 
         let file_id = disk_contents[file_end-1].unwrap();
