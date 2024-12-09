@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 pub fn part_a() -> u64{
     get_calibration_result(2)
 }
