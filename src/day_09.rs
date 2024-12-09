@@ -1,4 +1,6 @@
 use std::iter;
+use std::ops::Range;
+
 pub fn part_a() -> u64 {
     let mut disk_contents = read_disk_contents();
 
@@ -18,33 +20,35 @@ pub fn part_a() -> u64 {
 pub fn part_b() -> u64 {
     let mut disk_contents = read_disk_contents();
 
-    let mut file_start_search_position = disk_contents.len();
-    loop {
-        let Some(mut file_end) = disk_contents[0..file_start_search_position].iter().rposition(|&i| i.is_some()).and_then(|i| Some(i+1)) else {break;};
+    let mut prev_block_contents = disk_contents[0];
+    let mut last_delta_index = 0;
+    let mut file_list: Vec<Range<usize>> = Vec::new();
+    let mut free_list: Vec<Range<usize>> = Vec::new();
 
-        let file_id = disk_contents[file_end-1].unwrap();
-        let Some(mut file_start) = disk_contents[0..file_end].iter().rposition(|&i| i != Some(file_id)).and_then(|i| Some(i+1)) else {break;};
+    for (index,block_contents) in disk_contents.iter().enumerate().skip(1){
+        match (prev_block_contents, block_contents ){
+            (None, Some(id)) => { free_list.push(last_delta_index..index); last_delta_index = index ; prev_block_contents = *block_contents;  }
+            (Some(_), None) => { file_list.push(last_delta_index..index); last_delta_index = index; prev_block_contents = *block_contents; }
+            (Some(a), Some(b)) if a != *b => { file_list.push(last_delta_index..index); last_delta_index = index; prev_block_contents = *block_contents; },
+            _ => {}
+        }
+    }
 
-        let file_range = file_start..file_end;
+    match(prev_block_contents){
+        (Some(_)) => file_list.push(last_delta_index..disk_contents.len()),
+        None => free_list.push(last_delta_index..disk_contents.len()),
+    }
 
-        let mut block_search_start_position = 0usize;
-        loop {
-            let free_block_start;
-            match disk_contents[block_search_start_position..].iter().position(|&i| i.is_none()){
-                Some(i) if block_search_start_position + i > file_range.start => break,
-                Some(i) => free_block_start = block_search_start_position + i,
-                None => break,
-            }
-            let Some(free_block_length) = disk_contents[free_block_start..].iter().position(|i| i.is_some()) else { break; };
 
-            if free_block_length >= file_range.len() {
-                let (left, right) = disk_contents.split_at_mut(file_range.start);
-                left[free_block_start..free_block_start+file_range.len()].swap_with_slice(&mut right[0..file_range.len()]);
+    for file in file_list.iter().rev()  {
+        for free in free_list.iter_mut().filter(|f| f.end <= file.start){
+            if(free.len() >= file.len()) {
+                let (left, right) = disk_contents.split_at_mut(file.start);
+                left[free.start..free.start+file.len()].swap_with_slice(&mut right[0..file.len()]);
+                *free = free.start+file.len()..free.end;
                 break;
             }
-            block_search_start_position = free_block_start + free_block_length;
         }
-        file_start_search_position = file_start;
     }
 
     disk_contents.iter().enumerate().map(|(i,id)| (i as u64)*id.unwrap_or(0)).sum()
