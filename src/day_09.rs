@@ -43,13 +43,11 @@ pub fn part_b() -> u64 {
     }
 
     for file in file_list.iter_mut().rev() {
-        for free in free_list.iter_mut().filter(|f| f.end <= file.0.start) {
-            if (free.len() >= file.0.len()) {
-                let free_start = free.start;
-                *free = free_start + file.0.len()..free.end;
-                *file = (free_start..free_start + file.0.len(), file.1);
-                break;
-            }
+        if let Some((i,free)) = free_list.iter_mut().enumerate().find(|(i,f)| f.end <= file.0.start && f.len() >= file.0.len()){
+            let free_start = free.start;
+            *free = free_start + file.0.len()..free.end;
+            *file = (free_start..free_start + file.0.len(), file.1);
+            if free.len() == 0 {free_list.remove(i);}
         }
     }
 

@@ -10,6 +10,6 @@ fn main() {
     // println!("{}", day_07::part_b());
     // println!("{}", day_08::part_a());
     // println!("{}", day_08::part_b());
-    // println!("{}", day_09::part_a());
+    println!("{}", day_09::part_a());
     println!("{}", day_09::part_b());
 }
