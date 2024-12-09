@@ -1,21 +1,21 @@
 use std::iter;
 pub fn part_a() -> u64 {
-    let mut disk = read_input_disk();
+    let mut disk_contents = read_disk_contents();
 
     let mut head = 0usize;
-    let mut tail = disk.len()-1;
+    let mut tail = disk_contents.len()-1;
 
     loop {
-        while disk[head].is_some() {head+=1;}
-        while disk[tail].is_none() {tail-=1;}
+        while disk_contents[head].is_some() {head+=1;}
+        while disk_contents[tail].is_none() {tail-=1;}
         if head >= tail {break;}
-        disk.swap(head, tail);
+        disk_contents.swap(head, tail);
     }
 
-    disk.iter().enumerate().map(|(i,id)| (i as u64)*id.unwrap_or(0)).sum()
+    disk_contents.iter().enumerate().map(|(i,id)| (i as u64)*id.unwrap_or(0)).sum()
 }
 
-fn read_input_disk() -> Vec<Option<u64>>{
+fn read_disk_contents() -> Vec<Option<u64>>{
     let input = include_str!("inputs/input09.txt");
     let mut blocks: Vec<Option<u64>> = Vec::new();
 
