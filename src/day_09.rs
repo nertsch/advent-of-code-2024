@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::iter;
 use std::ops::Range;
 
@@ -31,7 +32,7 @@ pub fn part_b() -> u64 {
     let (mut file_list,  mut free_list) = read_disk_contents();
 
     for file in file_list.iter_mut().rev() {
-        if let Some((i,free)) = free_list.iter_mut().enumerate().find(|(i,f)| f.end <= file.0.start && f.len() >= file.0.len()){
+        if let Some((i,free)) = free_list.iter_mut().enumerate().find(|(_,f)| f.end <= file.0.start && f.len() >= file.0.len()){
             let free_start = free.start;
             *free = free_start + file.0.len()..free.end;
             *file = (free_start..free_start + file.0.len(), file.1);
@@ -53,7 +54,7 @@ fn read_disk_contents() -> (Vec<(Range<usize>, u64)>, Vec<Range<usize>>){
         let space_size = space_size.to_digit(10).expect("input must just contain numbers") as usize;
         let space_range = current_index..current_index + space_size;
         current_index = space_range.end;
-        if (i % 2 == 0) {
+        if i % 2 == 0 {
             file_list.push((space_range, i as u64 / 2));
         } else {
             free_list.push(space_range);
