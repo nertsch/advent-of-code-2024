@@ -11,7 +11,6 @@ pub fn part_b() -> u128 {
 
 pub fn solve(number_of_runs: u32) -> u128 {
     let mut input = include_str!("inputs/input11.txt").lines().next().unwrap().split(' ').map(|n| (n.parse().unwrap(),1)).collect::<HashMap<u128,u128>>();
-    let split_table = (1..u128::MAX.ilog10()).map(|d| (10_u128.pow(d),10_u128.pow(d/2),d%2==0)).collect::<Vec<_>>();
 
     for _ in 0..number_of_runs {
         let mut result = HashMap::new();
@@ -20,16 +19,13 @@ pub fn solve(number_of_runs: u32) -> u128 {
                 *result.entry(1).or_insert(0) += count;
             }
             else {
-                for (threshold, mul, should_split) in split_table.iter() {
-                    if *number < *threshold {
-                        if *should_split {
-                            *result.entry(number / mul).or_insert(0) += count;
-                            *result.entry(number % mul).or_insert(0) += count;
-                        } else {
-                            *result.entry(number * 2024).or_insert(0) += count;
-                        }
-                        break;
-                    }
+                let number_of_digits = number.ilog10()+1;
+                if number_of_digits % 2 == 0 {
+                    let mul = 10u128.pow(number_of_digits/2);
+                    *result.entry(number / mul).or_insert(0) += count;
+                    *result.entry(number % mul).or_insert(0) += count;
+                } else {
+                    *result.entry(number * 2024).or_insert(0) += count;
                 }
             }
         }
