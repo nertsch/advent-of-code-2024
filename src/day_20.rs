@@ -49,6 +49,7 @@ fn find_char(map: &Vec<Vec<char>>, value: char) -> (usize,usize) {
     map
         .iter().enumerate().flat_map(|(y, line)| line.iter().enumerate().map(move |(x,c)| (x,y,c)))
         .find(|c|*c.2 == value)
+        .ok_or_else(|| format!("Char [{}] missing", value))
         .map(|c| (c.0, c.1))
-        .expect(&format!("Char [{}] missing", value))
+        .unwrap()
 }
