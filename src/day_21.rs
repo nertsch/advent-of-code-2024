@@ -27,21 +27,22 @@ fn calculate_code_complexity(code: &str, numeric_keypad: &HashMap<char, (i32,i32
         panic!("Invalid code!")
     }
 
-    let movements1 = calculate_keypad_movements(&numeric_keypad, &code.chars().collect::<Vec<char>>());
-    //println!("{:?}", movements1.iter().collect::<String>());
-    let movements2 = calculate_keypad_movements(&control_keypad, &movements1);
-    //println!("{:?}", movements2.iter().collect::<String>());
-    let movements3 = calculate_keypad_movements(&control_keypad, &movements2);
-    //println!("{:?}", movements3.iter().collect::<String>());
+    let mut movements = calculate_keypad_movements(&numeric_keypad, &code.chars().collect::<Vec<char>>());
+
+    for i in 1..=2 {
+        print!("{}", i);
+        movements = calculate_keypad_movements(&control_keypad, &movements);
+        println!(" {}", movements.len());
+    }
 
     let numeric_code_part: i32 = code[..code.len()-1].parse().unwrap();
-    println!("{} * {}", movements3.len(), numeric_code_part);
-    numeric_code_part * movements3.len() as i32
+    println!("{} * {}", movements.len(), numeric_code_part);
+    numeric_code_part * movements.len() as i32
 }
 
 
 fn calculate_keypad_movements(position_by_key: &HashMap<char, (i32,i32)>, keys_to_press: &[char]) -> Vec<char> {
-    let mut current_position = (0,0);
+    let mut current_position = *position_by_key.get(&'A').unwrap();
     let mut keypad_movements = Vec::<_>::new();
 
     let gap = *position_by_key.get(&' ').unwrap();
