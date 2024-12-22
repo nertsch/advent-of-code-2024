@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use nalgebra::{ Vector2};
 
 pub fn part_a() -> i32 {

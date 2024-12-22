@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use std::collections::{HashSet};
 
 pub fn part_a() -> i32 {

@@ -37,7 +37,7 @@ pub fn read_path() -> Vec<(usize, usize)> {
         for next in [(current.0-1, current.1), (current.0+1, current.1), (current.0, current.1-1), (current.0, current.1+1)]{
             if path.iter().rev().nth(1) != Some(&next) && map[next.1][next.0] != '#' {
                 path.push(next);
-                if(next == end) { break 'parse_map; }
+                if next == end { break 'parse_map; }
                 current = next;
                 break;
             }

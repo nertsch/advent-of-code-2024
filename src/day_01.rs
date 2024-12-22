@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 pub fn part_a() -> u32{
     let my_str = include_str!("inputs/input01.txt");
 

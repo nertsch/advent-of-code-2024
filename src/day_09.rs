@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use std::iter;
 use std::ops::Range;
 
