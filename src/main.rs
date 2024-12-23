@@ -35,4 +35,5 @@ fn main() {
     //println!("{}", day_21::part_a());
     //println!("{}", day_21::part_b());
     println!("{}", day_23::part_a());
+    println!("{}", day_23::part_b());
 }
