@@ -41,31 +41,69 @@ pub fn part_b() -> String {
     for (computer, connected_computers) in connected_computers_by_computer.iter() {
         for connected_computer in connected_computers {
             let mut no_network_found = true;
-            for network in networks.iter_mut(){
-                if network.contains(computer) {
-                    if network.iter().all(|c| connected_computers_by_computer.get(c).unwrap().contains(connected_computer)) {
-                        network.insert(connected_computer.to_owned());
-                        no_network_found = false;
-                    }
+            for network in networks.iter_mut() {
+                if insert_into_network_if_connected(
+                    network,
+                    computer,
+                    connected_computer,
+                    &connected_computers_by_computer,
+                ) {
+                    no_network_found = false;
                 }
-                if network.contains(connected_computer) {
-                    if network.iter().all(|c| connected_computers_by_computer.get(c).unwrap().contains(computer)) {
-                        network.insert(computer.to_owned());
-                        no_network_found = false;
-                    }
+                if insert_into_network_if_connected(
+                    network,
+                    connected_computer,
+                    computer,
+                    &connected_computers_by_computer,
+                ) {
+                    no_network_found = false;
                 }
             }
             if no_network_found {
-                networks.push(HashSet::from([computer.to_owned(), connected_computer.to_owned()]));
+                networks.push(HashSet::from([
+                    computer.to_owned(),
+                    connected_computer.to_owned(),
+                ]));
             }
         }
     }
 
-    let biggest_network =  networks.iter().max_by(|a,b| a.len().cmp(&b.len())).unwrap();
+    let biggest_network = networks
+        .iter()
+        .max_by(|a, b| a.len().cmp(&b.len()))
+        .unwrap();
     let mut biggest_network = biggest_network.iter().collect::<Vec<_>>();
     biggest_network.sort();
-    biggest_network.iter().map(|s| s.as_str()).collect::<Vec<&str>>().join(",")
+    biggest_network
+        .iter()
+        .map(|s| s.as_str())
+        .collect::<Vec<&str>>()
+        .join(",")
+}
 
+fn insert_into_network_if_connected(
+    network: &mut HashSet<String>,
+    computer_to_be_contained: &String,
+    computer_to_insert: &String,
+    connected_computers_by_computer: &HashMap<String, HashSet<String>>,
+) -> bool {
+    if network.contains(computer_to_be_contained) {
+        if network
+            .iter()
+            .filter(|c| *c != computer_to_insert)
+            .all(|c| {
+                connected_computers_by_computer
+                    .get(c)
+                    .unwrap()
+                    .contains(computer_to_insert)
+            })
+        {
+            network.insert(computer_to_insert.to_owned());
+            return true;
+        }
+    }
+
+    false
 }
 
 fn read_connected_computers_by_computer() -> HashMap<String, HashSet<String>> {
