@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 pub fn part_a() -> u64 {
     calculate_total_complexity(2)
 }
@@ -10,7 +9,6 @@ pub fn part_b() -> u64 {
 }
 
 pub fn calculate_total_complexity(number_of_control_pads: u8) -> u64 {
-
     let numeric_keypad: HashMap<_,_> = [
         ('A', (0,0)), ('0', (1,0)), (' ', (2,0)),
         ('3', (0,1)), ('2', (1,1)), ('1', (2,1)),
@@ -65,9 +63,7 @@ fn get_number_of_arm_movements(number_of_arm_movements_cache: &mut HashMap<Numbe
 }
 
 fn get_number_of_arm_movements_for_single_key(number_of_arm_movements_cache: &mut HashMap<NumberOfArmMovementsCacheKey, u64>, current_key: char, next_key: char, keypads: &[&HashMap<char,(i32,i32)>]) -> u64 {
-
     let level_id = keypads.len();
-
     let number_of_arm_movements_cache_key = NumberOfArmMovementsCacheKey{current_key, next_key, level_id};
     if let Some(number_of_arm_movements) = number_of_arm_movements_cache.get(&number_of_arm_movements_cache_key) {
         return *number_of_arm_movements;
