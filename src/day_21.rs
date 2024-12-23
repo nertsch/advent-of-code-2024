@@ -1,7 +1,16 @@
 use std::collections::HashMap;
-use crate::day_12::add;
 
-pub fn part_a() -> i32 {
+
+pub fn part_a() -> u64 {
+    calculate_total_complexity(2)
+}
+
+pub fn part_b() -> u64 {
+    calculate_total_complexity(25)
+}
+
+pub fn calculate_total_complexity(number_of_control_pads: u8) -> u64 {
+
     let numeric_keypad: HashMap<_,_> = [
         ('A', (0,0)), ('0', (1,0)), (' ', (2,0)),
         ('3', (0,1)), ('2', (1,1)), ('1', (2,1)),
@@ -14,68 +23,79 @@ pub fn part_a() -> i32 {
         ('>', (0,-1)), ('v', (1,-1)), ('<', (2,-1)),
     ].into_iter().collect();
 
-    include_str!("inputs/input21.txt")
-        .lines()
-        .map(|l|calculate_code_complexity(l, &numeric_keypad, &control_keypad ) )
-        .sum()
-}
-
-fn calculate_code_complexity(code: &str, numeric_keypad: &HashMap<char, (i32,i32)>, control_keypad: &HashMap<char, (i32,i32)>) -> i32 {
-    let keys_to_press = code.chars().collect::<Vec<char>>();
-
-    if keys_to_press.last().map(|c| *c) != Some('A') {
-        panic!("Invalid code!")
+    let mut keypads = vec![&numeric_keypad];
+    for _ in 0..number_of_control_pads {
+        keypads.push(&control_keypad);
     }
 
-    let mut movements = calculate_keypad_movements(&numeric_keypad, &code.chars().collect::<Vec<char>>());
+    let mut total_complexity= 0;
+    let mut number_of_arm_movements_cache = HashMap::<_,_>::new() ;
 
-    for i in 1..=2 {
-        print!("{}", i);
-        movements = calculate_keypad_movements(&control_keypad, &movements);
-        println!(" {}", movements.len());
+    for line in include_str!("inputs/input21.txt").lines() {
+        let number_of_arm_movements = get_number_of_arm_movements(&mut number_of_arm_movements_cache, line.chars(), &keypads);
+        let numeric_code_part: u64 = line[..line.len()-1].parse().unwrap();
+        total_complexity += number_of_arm_movements * numeric_code_part;
     }
 
-    let numeric_code_part: i32 = code[..code.len()-1].parse().unwrap();
-    println!("{} * {}", movements.len(), numeric_code_part);
-    numeric_code_part * movements.len() as i32
+    total_complexity
 }
 
+#[derive(Eq, PartialEq, Hash)]
+struct NumberOfArmMovementsCacheKey {
+    pub current_key: char,
+    pub next_key: char,
+    pub level_id: usize
+}
 
-fn calculate_keypad_movements(position_by_key: &HashMap<char, (i32,i32)>, keys_to_press: &[char]) -> Vec<char> {
-    let mut current_position = *position_by_key.get(&'A').unwrap();
-    let mut keypad_movements = Vec::<_>::new();
+fn get_number_of_arm_movements(number_of_arm_movements_cache: &mut HashMap<NumberOfArmMovementsCacheKey, u64>, keys: impl Iterator<Item=char>, keypads: &[&HashMap<char,(i32,i32)>]) -> u64 {
+    if keypads.len() == 0 {
+        return keys.count() as u64
+    };
 
-    let gap = *position_by_key.get(&' ').unwrap();
+    let keypad = &keypads[0];
+    let mut current_key = 'A';
+    let mut number_of_arm_movements = 0;
 
-    for key in keys_to_press {
-        let new_position = position_by_key.get(key).expect("key not found in keypad");
-        let dx = new_position.0 - current_position.0;
-        let dy = new_position.1 - current_position.1;
-
-        let movements_y = std::iter::repeat(if dy > 0 {'^'} else {'v'}).take(dy.abs() as usize);
-        let movements_x = std::iter::repeat(if dx > 0 {'<'} else {'>'}).take(dx.abs() as usize);
-
-        let mut prefer_x = dx > 0;
-
-        if dx != 0 && dy != 0 && ((new_position.0, current_position.1) == gap || (current_position.0, new_position.1) == gap) {
-            prefer_x = !prefer_x;
-        }
-
-        if prefer_x {
-            keypad_movements.extend(movements_x);
-            keypad_movements.extend(movements_y);
-        }
-        else {
-            keypad_movements.extend(movements_y);
-            keypad_movements.extend(movements_x);
-        }
-        keypad_movements.push('A');
-        current_position = *new_position;
+    for next_key in keys {
+        number_of_arm_movements += get_number_of_arm_movements_for_single_key(number_of_arm_movements_cache, current_key, next_key, keypads);
+        current_key = next_key;
     }
 
-    keypad_movements
+    number_of_arm_movements
 }
 
-pub fn part_b() -> i32 {
-    0
+fn get_number_of_arm_movements_for_single_key(number_of_arm_movements_cache: &mut HashMap<NumberOfArmMovementsCacheKey, u64>, current_key: char, next_key: char, keypads: &[&HashMap<char,(i32,i32)>]) -> u64 {
+
+    let level_id = keypads.len();
+
+    let number_of_arm_movements_cache_key = NumberOfArmMovementsCacheKey{current_key, next_key, level_id};
+    if let Some(number_of_arm_movements) = number_of_arm_movements_cache.get(&number_of_arm_movements_cache_key) {
+        return *number_of_arm_movements;
+    }
+
+    let keypad = &keypads[0];
+
+    let gap_position = *keypad.get(&' ').unwrap();
+
+    let current_position = keypad.get(&current_key).expect("key not found in keypad");
+    let next_position = keypad.get(&next_key).expect("key not found in keypad");
+    let dx = next_position.0 - current_position.0;
+    let dy = next_position.1 - current_position.1;
+
+    let movements_y = std::iter::repeat(if dy > 0 {'^'} else {'v'}).take(dy.abs() as usize);
+    let movements_x = std::iter::repeat(if dx > 0 {'<'} else {'>'}).take(dx.abs() as usize);
+
+    let mut prefer_x = dx > 0;
+
+    if dx != 0 && dy != 0 && ((next_position.0, current_position.1) == gap_position || (current_position.0, next_position.1) == gap_position) {
+        prefer_x = !prefer_x;
+    }
+
+    let movements= if prefer_x { movements_x.chain(movements_y) } else { movements_y.chain(movements_x) };
+    let movements = movements.chain(std::iter::once('A'));
+
+    let number_of_arm_movements = get_number_of_arm_movements(number_of_arm_movements_cache, movements.into_iter(), &keypads[1..]);
+    number_of_arm_movements_cache.insert(number_of_arm_movements_cache_key, number_of_arm_movements);
+    number_of_arm_movements
 }
+
