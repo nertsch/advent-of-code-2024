@@ -6,7 +6,7 @@ pub fn part_a() -> i32 {
     for c in machine_configurations.iter() {
         let num = c.prize.1*c.button_a.0 - c.prize.0*c.button_a.1;
         let den = c.button_b.1*c.button_a.0 - c.button_b.0*c.button_a.1;
-        if(num % den == 0) {
+        if num % den == 0 {
             let b = num / den;
 
         }

@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::mem::take;
 
 pub fn part_a() -> usize {
-    let mut connected_computers_by_computer = read_connected_computers_by_computer();
+    let connected_computers_by_computer = read_connected_computers_by_computer();
 
     let mut visited_computers = HashSet::<_>::new();
     let mut networks = Vec::<_>::new();
@@ -34,7 +34,7 @@ pub fn part_a() -> usize {
 }
 
 pub fn part_b() -> String {
-    let mut connected_computers_by_computer = read_connected_computers_by_computer();
+    let connected_computers_by_computer = read_connected_computers_by_computer();
 
     let mut networks = Vec::<HashSet<String>>::new();
 
