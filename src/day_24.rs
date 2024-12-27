@@ -80,9 +80,7 @@ pub fn part_a() -> u128 {
 
     for wire_name in wire_names {
         result <<= 1;
-        if (wire_value_by_wire_name.get(wire_name).unwrap().evaluate)(&wire_value_by_wire_name) {
-            result += 1;
-        }
+        result |= if (wire_value_by_wire_name.get(wire_name).unwrap().evaluate)(&wire_value_by_wire_name) {1u128} else {0u128};
     }
 
     result
