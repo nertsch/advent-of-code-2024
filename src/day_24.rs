@@ -2,11 +2,11 @@ use regex::Regex;
 use std::collections::HashMap;
 
 struct Wire {
-    pub evaluate: Box<dyn Fn(&HashMap<String, Box<Wire>>) -> bool>,
+    pub evaluate: Box<dyn Fn(&HashMap<String, Wire>) -> bool>,
 }
 
 pub fn part_a() -> u128 {
-    let mut wire_value_by_wire_name = HashMap::<String, Box<Wire>>::new();
+    let mut wire_value_by_wire_name = HashMap::<String, Wire>::new();
 
     let mut is_reading_values = true;
 
@@ -23,9 +23,9 @@ pub fn part_a() -> u128 {
 
             wire_value_by_wire_name.insert(
                 wire_name.to_owned(),
-                Box::new(Wire {
+                Wire {
                     evaluate: Box::new(move |w| wire_value),
-                }),
+                },
             );
         } else {
             let mut split = line.split_whitespace();
@@ -38,30 +38,30 @@ pub fn part_a() -> u128 {
             match operator {
                 "OR" => wire_value_by_wire_name.insert(
                     wire_out,
-                    Box::new(Wire {
+                    Wire {
                         evaluate: Box::new(|w| {
                             (w.get(wire_1_name).unwrap().evaluate)(w)
                                 || (w.get(wire_2_name).unwrap().evaluate)(w)
                         }),
-                    }),
+                    },
                 ),
                 "AND" => wire_value_by_wire_name.insert(
                     wire_out,
-                    Box::new(Wire {
+                    Wire {
                         evaluate: Box::new(|w| {
                             (w.get(wire_1_name).unwrap().evaluate)(w)
                                 && (w.get(wire_2_name).unwrap().evaluate)(w)
                         }),
-                    }),
+                    },
                 ),
                 "XOR" => wire_value_by_wire_name.insert(
                     wire_out,
-                    Box::new(Wire {
+                    Wire {
                         evaluate: Box::new(|w| {
                             (w.get(wire_1_name).unwrap().evaluate)(w)
                                 != (w.get(wire_2_name).unwrap().evaluate)(w)
                         }),
-                    }),
+                    },
                 ),
                 _ => panic!(),
             };
