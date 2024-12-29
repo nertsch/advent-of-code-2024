@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, rc::Rc};
 use std::mem::take;
 
 pub fn part_a() -> usize {
@@ -36,7 +36,7 @@ pub fn part_a() -> usize {
 pub fn part_b() -> String {
     let connected_computers_by_computer = read_connected_computers_by_computer();
 
-    let mut networks = Vec::<HashSet<String>>::new();
+    let mut networks = Vec::<HashSet<Rc<str>>>::new();
 
     for (computer, connected_computers) in connected_computers_by_computer.iter() {
         for connected_computer in connected_computers {
@@ -76,16 +76,16 @@ pub fn part_b() -> String {
     biggest_network.sort();
     biggest_network
         .iter()
-        .map(|s| s.as_str())
+        .map(|s| s.as_ref())
         .collect::<Vec<&str>>()
         .join(",")
 }
 
 fn insert_into_network_if_connected(
-    network: &mut HashSet<String>,
-    computer_to_be_contained: &String,
-    computer_to_insert: &String,
-    connected_computers_by_computer: &HashMap<String, HashSet<String>>,
+    network: &mut HashSet<Rc<str>>,
+    computer_to_be_contained: &str,
+    computer_to_insert: &Rc<str>,
+    connected_computers_by_computer: &HashMap<Rc<str>, HashSet<Rc<str>>>,
 ) -> bool {
     if network.contains(computer_to_be_contained) {
         if network
@@ -106,8 +106,8 @@ fn insert_into_network_if_connected(
     false
 }
 
-fn read_connected_computers_by_computer() -> HashMap<String, HashSet<String>> {
-    let mut connected_computers_by_computer = HashMap::<String, HashSet<String>>::new();
+fn read_connected_computers_by_computer() -> HashMap<Rc<str>, HashSet<Rc<str>>> {
+    let mut connected_computers_by_computer = HashMap::<Rc<str>, HashSet<Rc<str>>>::new();
 
     for line in include_str!("inputs/input23.txt").lines() {
         let Some((computer_1, computer_2)) = line.split_once("-") else {
@@ -115,14 +115,14 @@ fn read_connected_computers_by_computer() -> HashMap<String, HashSet<String>> {
         };
 
         connected_computers_by_computer
-            .entry(computer_1.to_owned())
+            .entry(computer_1.into())
             .or_insert_with(|| HashSet::<_>::new())
-            .insert(computer_2.to_owned());
+            .insert(computer_2.into());
 
         connected_computers_by_computer
-            .entry(computer_2.to_owned())
+            .entry(computer_2.into())
             .or_insert_with(|| HashSet::<_>::new())
-            .insert(computer_1.to_owned());
+            .insert(computer_1.into());
     }
 
     connected_computers_by_computer
