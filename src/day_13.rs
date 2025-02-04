@@ -1,18 +1,18 @@
 use regex::Regex;
 
-pub fn part_a() -> i32 {
+pub fn part_a() -> i64 {
     let machine_configurations = read_machine_configurations();
 
-    for c in machine_configurations.iter() {
-        let num = c.prize.1*c.button_a.0 - c.prize.0*c.button_a.1;
-        let den = c.button_b.1*c.button_a.0 - c.button_b.0*c.button_a.1;
-        if num % den == 0 {
-            let b = num / den;
+    let mut total_cost : i64 = 0;
 
+    for c in machine_configurations.iter() {
+        let b = (c.button_a.0 as f64 * c.prize.1  as f64- c.button_a.1  as f64* c.prize.0 as f64) / (c.button_a.0 as f64*c.button_b.1 as f64 - c.button_a.1 as f64*c.button_b.0 as f64);
+        let a = (c.prize.0 as f64-b*c.button_b.0 as f64) / c.button_a.0 as f64;
+        if a.fract() == 0.0 && b.fract() == 0.0 {
+            total_cost += 3*a as i64 + b as i64;
         }
     }
-
-    0
+    total_cost
 }
 
 struct MachineConfiguration {
@@ -29,7 +29,6 @@ fn read_machine_configurations() -> Vec<MachineConfiguration> {
     let mut result = Vec::<_>::new();
 
     for capture in machine_regex.captures_iter(input) {
-        println!("{:?}", capture.get(0).unwrap());
         result.push(
             MachineConfiguration{
                 button_a: (capture.name("ax").unwrap().as_str().parse().unwrap(),capture.name("ay").unwrap().as_str().parse().unwrap()),
