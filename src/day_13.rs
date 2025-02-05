@@ -14,10 +14,15 @@ fn solve(prize_offset: u64) -> i64 {
     let mut total_cost: i64 = 0;
 
     for c in machine_configurations.iter() {
-        let b = (c.button_a.0 as f64 * c.prize.1 as f64 - c.button_a.1 as f64 * c.prize.0 as f64)
-            / (c.button_a.0 as f64 * c.button_b.1 as f64 - c.button_a.1 as f64 * c.button_b.0 as f64);
-        let a = (c.prize.0 as f64 - b * c.button_b.0 as f64) / c.button_a.0 as f64;
-        if a.fract() == 0.0 && b.fract() == 0.0 {
+        let a0 = c.button_a.0 as f64;
+        let a1 = c.button_a.1 as f64;
+        let b0 = c.button_b.0 as f64;
+        let b1 = c.button_b.1 as f64;
+        let p0 = c.prize.0 as f64;
+        let p1 = c.prize.1 as f64;
+        let b = (a0 * p1 - a1 * p0) / (a0 * b1 - a1 * b0);
+        let a = (p0 - b * b0) / a0;
+        if a.fract() == 0f64 && b.fract() == 0f64 {
             total_cost += 3 * a as i64 + b as i64;
         }
     }
