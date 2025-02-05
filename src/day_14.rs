@@ -12,11 +12,8 @@ pub fn part_a() -> i64 {
     let mut q4 = 0;
 
     for robot in robots.iter_mut() {
-        let px = (robot.px + 100 * robot.vx) % width;
-        let py = (robot.py + 100 * robot.vy) % height;
-
-        let px = if px < 0 { px + width } else { px };
-        let py = if py < 0 { py + height } else { py };
+        let px = (robot.px + 100 * robot.vx).rem_euclid(width);
+        let py = (robot.py + 100 * robot.vy).rem_euclid(height);
 
         if px < width / 2 && py < height / 2 {
             q1 += 1;
