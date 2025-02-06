@@ -1,10 +1,11 @@
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::HashSet;
+
+const WIDTH: i32 = 101;
+const HEIGHT: i32 = 103;
 
 pub fn part_a() -> i64 {
     let mut robots = read_robots();
-    let width = 101;
-    let height = 103;
 
     let mut q1 = 0;
     let mut q2 = 0;
@@ -12,21 +13,37 @@ pub fn part_a() -> i64 {
     let mut q4 = 0;
 
     for robot in robots.iter_mut() {
-        let px = (robot.px + 100 * robot.vx).rem_euclid(width);
-        let py = (robot.py + 100 * robot.vy).rem_euclid(height);
+        let px = (robot.px + 100 * robot.vx).rem_euclid(WIDTH);
+        let py = (robot.py + 100 * robot.vy).rem_euclid(HEIGHT);
 
-        if px < width / 2 && py < height / 2 {
+        if px < WIDTH / 2 && py < HEIGHT / 2 {
             q1 += 1;
-        } else if px > width / 2 && py < height / 2 {
+        } else if px > WIDTH / 2 && py < HEIGHT / 2 {
             q2 += 1;
-        } else if px > width / 2 && py > height / 2 {
+        } else if px > WIDTH / 2 && py > HEIGHT / 2 {
             q3 += 1;
-        } else if px < width / 2 && py > height / 2 {
+        } else if px < WIDTH / 2 && py > HEIGHT / 2 {
             q4 += 1;
         }
     }
 
     q1 * q2 * q3 * q4
+}
+
+pub fn part_b() -> i64 {
+    let mut robots = read_robots();
+    let mut seconds_elapsed = 0;
+
+    loop {
+        if robots.iter().map(|r| (r.px, r.py)).collect::<HashSet<_>>().len() == robots.len() {
+            return  seconds_elapsed;
+        }
+        for robot in robots.iter_mut(){
+            robot.px = (robot.px + robot.vx).rem_euclid(WIDTH);
+            robot.py = (robot.py + robot.vy).rem_euclid(HEIGHT);
+        }
+        seconds_elapsed += 1;
+    }
 }
 
 struct Robot {
