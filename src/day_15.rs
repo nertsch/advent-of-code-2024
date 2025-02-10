@@ -65,6 +65,7 @@ struct Input {
     robot_position: (i32, i32),
 }
 
+
 fn read_input() -> Input {
     let mut result = Input {
         object_by_position: HashMap::<_, _>::new(),
@@ -97,3 +98,80 @@ fn read_input() -> Input {
 
     result
 }
+
+pub fn part_b() -> i32 {
+    let Input {
+        mut object_by_position,
+        moves,
+        mut robot_position,
+    } = read_input_wide();
+
+    write_warehouse_wide(&object_by_position, &robot_position);
+
+    0
+}
+
+fn write_warehouse_wide(object_by_position: &HashMap<(i32, i32), char>, robot_position: &(i32,i32)){
+
+    let mut as_string = String::new();
+
+    for y in 0..10{
+        for x in 0..20 {
+            if x == robot_position.0 && y == robot_position.1 {
+                as_string.push('@');
+            } else {
+                as_string.push(*object_by_position.get(&(x,y)).unwrap_or(&'.'));
+            }
+        }
+        as_string.push('\n');
+    }
+
+    println!("{}", as_string);
+}
+
+fn read_input_wide() -> Input {
+    let mut result = Input {
+        object_by_position: HashMap::<_, _>::new(),
+        moves: Vec::<_>::new(),
+        robot_position: (0, 0),
+    };
+
+    let input = include_str!("inputs/input15.txt");
+    let mut is_reading_warehouse = true;
+
+    for (y, line) in input.lines().enumerate() {
+        if is_reading_warehouse {
+            if line.len() > 0 {
+                for (x, char) in line.chars().enumerate() {
+                    match char {
+                        '@' => result.robot_position = (x as i32 * 2, y as i32),
+                        '#' => {
+                            result
+                                .object_by_position
+                                .insert((x as i32 * 2, y as i32), char);
+                            result
+                                .object_by_position
+                                .insert((x as i32 * 2 + 1, y as i32), char);
+                        }
+                        'O' => {
+                            result
+                                .object_by_position
+                                .insert((x as i32 * 2, y as i32), '[');
+                            result
+                                .object_by_position
+                                .insert((x as i32 * 2 + 1, y as i32), ']');
+                        }
+                        _ => {}
+                    };
+                }
+            } else {
+                is_reading_warehouse = false;
+            }
+        } else {
+            result.moves.extend(line.chars());
+        }
+    }
+
+    result
+}
+
