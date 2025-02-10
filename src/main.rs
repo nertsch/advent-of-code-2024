@@ -15,6 +15,7 @@ mod day_21;
 mod day_23;
 mod day_24;
 mod day_14;
+mod day_15;
 
 fn main() {
     // println!("{}", day_01::part_a());
@@ -32,8 +33,9 @@ fn main() {
     //println!("{}", day_12::part_b());
     //println!("{}", day_13::part_a());
     //println!("{}", day_13::part_b());
-    println!("{}", day_14::part_a());
-    println!("{}", day_14::part_b());
+    //println!("{}", day_14::part_a());
+    //println!("{}", day_14::part_b());
+    println!("{}", day_15::part_a());
     //println!("{}", day_20::part_a());
     //println!("{}", day_20::part_b());
     //println!("{}", day_21::part_a());
